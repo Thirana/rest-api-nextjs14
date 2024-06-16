@@ -12,7 +12,7 @@
 
 - created MongoDB data base and connected it to project
 - created schemas (install mongoose) (Users)
-- created api end point to GET user data
+- created api end point to GET, POST, PATCH & DELETE Users
 
 {
 "email": "exampleUser1@gmail.com",
