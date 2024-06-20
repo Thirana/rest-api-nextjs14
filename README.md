@@ -12,10 +12,7 @@
 
 - created MongoDB data base and connected it to project
 - created schemas (install mongoose) (Users)
-- created api end point to GET, POST, PATCH & DELETE Users
-
-{
-"email": "exampleUser1@gmail.com",
-"username": "exampleUser1",
-"password": "exampleUser1"
-}
+- created api end point to `GET`, `POST`, `PATCH` & `DELETE` for `Users`
+- created schema for Category -> (make a relationship with User Schema)
+- created `GET` & `POST` api endpoints for `Category`
+- created `PATCH` and `DELETE` api endpoints for `Category` using dynamic routes
