@@ -4,13 +4,22 @@ import Blog from "@/lib/modals/blog";
 import { Types } from "mongoose";
 import User from "@/lib/modals/user";
 import Category from "@/lib/modals/category";
+import { title } from "process";
 
+// API end point to GET blogs from userID & categoryId -> Primary feature
+// Search, Filter
 export const GET = async (request: Request) => {
   try {
     // getting required URI Params
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     const categoryId = searchParams.get("categoryId");
+    const searchKeywords = searchParams.get("keywords") as string;
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
+    // we need following params as int to find required number of blogs that need to be skip for pagination
+    const page: any = parseInt(searchParams.get("page") || "1");
+    const limit: any = parseInt(searchParams.get("limit") || "6");
 
     // check userId exist in URI and its format
     if (!userId || !Types.ObjectId.isValid(userId)) {
@@ -54,8 +63,45 @@ export const GET = async (request: Request) => {
       category: new Types.ObjectId(categoryId),
     };
 
+    // if searchKeyword param exist in URI, we modify the filter object based on search keyword
+    if (searchKeywords) {
+      //  $or operator is a MongoDB query operator used to specify that any of the given conditions should be true for a document to match the query.
+      filter.$or = [
+        // condition 01
+        {
+          title: { $regex: searchKeywords, $options: "i" }, // "i" -> case-insensitive regex
+        },
+        // condition 02
+        {
+          description: { $regex: searchKeywords, $options: "i" },
+        },
+      ];
+    }
+
+    // if startDate & endDate both exist -> use that range
+    if (startDate && endDate) {
+      filter.createdAt = {
+        $gte: new Date(startDate), // gte -> greater than or equal
+        $lte: new Date(endDate), // lte -> less than or equal
+      };
+    } else if (startDate) {
+      filter.createdAt = {
+        $gte: new Date(startDate),
+      };
+    } else if (endDate) {
+      filter.createdAt = {
+        $lte: new Date(endDate),
+      };
+    }
+
+    // number of blogs that need to be skipped for pagination
+    const skip = (page - 1) * limit;
+
     // find blogs based on userID & CategoryId
-    const blogs = await Blog.find(filter);
+    const blogs = await Blog.find(filter)
+      .sort({ createdAt: "asc" })
+      .skip(skip)
+      .limit(limit);
 
     return new NextResponse(JSON.stringify({ blogs }), { status: 200 });
   } catch (error: any) {
