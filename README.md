@@ -22,3 +22,4 @@
 - added search functionality to blog GET endpoint using URI Param
 - added filter functionality to blog based on blog created date range
 - added pagination using URI Params
+- simulate authorization token behavior using middleware function.
